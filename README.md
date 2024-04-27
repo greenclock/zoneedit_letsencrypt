@@ -2,7 +2,11 @@
 
 ![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/automated-zoneedit-letsencrypt.JPG)
 
+# Summary
+
 Scripts to enable automated ssl certificate update dns-01 challenge with Linux, Zoneedit and Letsencrypt
+
+# Overview
 
 This is a very basic script for my needs.
 
@@ -19,9 +23,29 @@ To use this, you need the following:
 
 1. A ZoneEdit hosted Domain
 2. the certbot-auto binary in the path or ~/certbot dir (or specify with CERTBOTDIR environment variable)
-3. Your ZoneEdit user and password (you will need to save them in /etc/sysconfig/zoneedit.cfg file)
+3. Your ZoneEdit user and DYN token for EACH domain you want to update.
+   (see below on where to get it)
 4. These scripts
 
+# Getting your DYN token:
+
+1. Go to main domain listing page
+2. Click the *dns* link for the domain
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/dnslink.JPG)
+3. Click the top level menu *Domains* link
+4. In domains pull down, click the *DNS settings* menu entry.
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/menudnssettings.JPG)
+5. In that page, find the *DYN records* section and click the wrench on top right.
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/dynrench.JPG)
+6. Scroll to bottom of page and find the *dynamic authentication* section and click te *enable* link.
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/dynenable.JPG)
+   - if you already enabled it, you can click the *view* instead.
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/dynview.JPG)
+7. Copy the token value and put it in the /etc/sysconfig/zoneedit/YOURDOMAIN.cfg file (see below).
+![alt text](https://raw.githubusercontent.com/jeansergegagnon/zoneedit_letsencrypt/master/images/dyntoken.JPG)
+
+
+# Installing and using this script
 
 You just install this in a directory, as simple as this:
 
@@ -29,33 +53,35 @@ You just install this in a directory, as simple as this:
 cd /path/to/dir/to/save/files
 git clone git@github.com:jeansergegagnon/zoneedit_letsencrypt.git
 cd zoneedit_letsencrypt
-./getcert-wilddns-with-zoneedit.sh -d yourdomain.com
+sudo ./getcert-wilddns-with-zoneedit.sh -d yourdomain.com
 ```
 
-On first execution, this will fail and you will need to edit the /etc/sysconfig/zoneedit.cfg file
+On first execution, this will fail and you will need to edit the /etc/sysconfig/zoneedit/YOURDOMAIN.cfg file
 and you can re-run the command which will complete
 
 ```
-./getcert-wilddns-with-zoneedit.sh -d yourdomain.com
+sudo ./getcert-wilddns-with-zoneedit.sh -d yourdomain.com
 ```
 
-To automate this in cron, you can add the -a flag and the -e email value, for example:
+To automate this in cron, you can add the -a flag and the -e email value, for example this will check yourdomain.com cert every 10th and 20th of the month and update it if it is expiring soon:
 
 ```
 CERTBOTDIR=/home/user/certbot
 0 0 10,20 * * /home/user/code/zoneedit_letsencrypt/getcert-wilddns-with-zoneedit.sh -d yourdomain.com -a -e youremail@yourdomain.com
 ```
 
+# Examples
+
 For example, when running this command:
 
 ```
-./getcert-wilddns-with-zoneedit.sh -a -d sampledomain.com
+sudo ./getcert-wilddns-with-zoneedit.sh -a -d sampledomain.com
 ```
 
 you will see output similar to this:
 
 ```
-[jsg@www zoneedit_letsencrypt]$ ./getcert-wilddns-with-zoneedit.sh -a -d sampledomain.com
+[jsg@www zoneedit_letsencrypt]$ sudo ./getcert-wilddns-with-zoneedit.sh -a -d sampledomain.com
 sudo ./certbot-auto certonly --agree-tos --manual-public-ip-logging-ok --non-interactive --manual --manual-auth-hook /home/jsg/code/zoneedit_letsencrypt/certbot-dns-updater-with-zoneedit.sh --preferred-challenges dns-01 -d *.sampledomain.com -d sampledomain.com
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 Plugins selected: Authenticator manual, Installer None
@@ -101,6 +127,8 @@ IMPORTANT NOTES:
 
 Obviously, change the *sampledomain.com* to your domain in above exmaple command.
 
+
+# SRF update:
 
 > If you get an error about SPF validation failure and you know for a fact your SPF record is valid,
 you'll need to go disable the SPF validation check.
