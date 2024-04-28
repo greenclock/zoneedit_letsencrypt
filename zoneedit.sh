@@ -24,6 +24,9 @@ ZAP=1
 # No dry run by default
 DRYRUN=""
 
+# No staging environment by default
+TESTCERT=""
+
 # Run a curl command
 # Usage:
 #   CURL url output [data]
@@ -60,6 +63,7 @@ Usage() {
 		echo "      -D         Enable debug output (WARNING: Password output to stdout)."
 		echo "      -V         Enable verbose output."
 		echo "      -Q         Disable all output (quiet mode)."
+		echo "      -T         Enable use of Staging Environment for testing."
 		echo "      -R         Do just a dry run and do not change anything on Zoneedit domain."
 		echo "      -d domain  Specify the domain to manage (required)."
 		echo "      -n name    Specify the name of the TXT record to edit (required)."
@@ -95,6 +99,8 @@ while [ $# -gt 0 ] ; do
 		VERBOSE=1
 	elif [ "$1" = "-Q" ] ; then
 		ENABLE_OUTPUT=
+	elif [ "$1" = "-T" ] ; then
+		TESTCERT=1
 	elif [ "$1" = "-R" ] ; then
 		DRYRUN=1
 	elif [ "$1" = "-d" ] ; then
